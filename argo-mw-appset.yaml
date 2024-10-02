@@ -9,10 +9,15 @@ spec:
     - matrix:
         generators:
           - git:
-              repoURL: https://github.com/Raisal-A/helm-charts-values.git  # New repo for values.yaml
+              repoURL: https://github.com/Raisal-A/appsetValues.git
               revision: master
               files:
-                - path: 'nahdi-mw/*-values.yaml'  # Update path to new location
+                - path: 'nahdi-mw/*-values.yaml'  # For the values.yaml files
+          - git:
+              repoURL: https://github.com/Raisal-A/appsetEnvs.git  # New repo for environment variables
+              revision: master
+              files:
+                - path: 'nahdi-mw/*-env.yaml'  # For the env.yaml files
           - clusters:
               selector:
                 matchLabels:
@@ -22,15 +27,16 @@ spec:
       name: '{{.appName}}'
     spec:
       destination:
-        namespace: '{{ .path.filename | replace "-values.yaml" "" }}'  # Dynamically set namespace
-        server: 'https://kubernetes.default.svc'  # Static server value
+        namespace: '{{ .path.filename | replace "-values.yaml" "" }}'
+        server: 'https://kubernetes.default.svc'
       project: production
       source:
         helm:
           valueFiles:
-            - '{{ .path.path }}'  # Using the matched values.yaml file
-        path: 'nahdi-mw'  # Path to your Helm chart (static in this case)
-        repoURL: https://github.com/Raisal-A/helm-charts-testing-new.git  # Original repo for Helm chart
+            - '{{ .path.path }}'  # This will include the values.yaml file
+            - '{{ .path.path | replace "values" "env" }}'  # Manually replace "values" with "env" for env.yaml files
+        path: 'nahdi-mw'
+        repoURL: https://github.com/Raisal-A/appsetCharts.git
         targetRevision: master
       syncPolicy:
         automated:
