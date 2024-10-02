@@ -10,13 +10,11 @@ spec:
   ignoreApplicationDifferences:
     - jsonPointers:
         - /spec/syncPolicy
-  #syncPolicy:
-  #   applicationsSync: create-delete
   generators:
    - matrix:
       generators:
        - git:
-          repoURL: https://github.com/Raisal-A/helm-charts-values.git
+          repoURL: https://github.com/Raisal-A/appsetValues.git
           revision: master
           files:
           - path: '**/*values.yaml'
@@ -31,21 +29,23 @@ spec:
     spec:
       project: production
       sources:
-       - repoURL: 'https://github.com/Raisal-A/helm-charts-values.git'
-         path: nahdi-mw
+       - repoURL: 'https://github.com/Raisal-A/appsetCharts.git'
+         path: '{{ .path.path | splitList "/" | first }}'
          targetRevision: master
          helm:
            valueFiles:
            - $values/{{.path.path}}/{{.path.filename}}
-       - repoURL: 'https://github.com/Raisal-A/helm-charts-values.git'
+       - repoURL: 'https://github.com/Raisal-A/appsetValues.git'
          targetRevision: master
          ref: values
+       - repoURL: 'https://github.com/Raisal-A/appsetEnvs.git'
+         path: '{{ .path.path | splitList "/" | first }}'
+         targetRevision: master
+         helm:
+         ref: envs
       destination:
-        #server: '{{.server}}'
-#        name: cluster
-        name: cluster-192.168.67.2-2580991329
-
-        namespace: app
+        server: 'https://kubernetes.default.svc'
+        namespace: '{{.namespace}}'
       syncPolicy:
         automated:
           prune: true
